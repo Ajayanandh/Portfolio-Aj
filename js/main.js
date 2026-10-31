@@ -101,7 +101,7 @@ function initTimelineScrollAnimation() {
   function updateTimeline() {
     const timelineRect = timeline.getBoundingClientRect();
     const windowHeight = window.innerHeight;
-    
+
     // Start drawing when timeline enters bottom 75% of viewport
     const startTrigger = windowHeight * 0.78;
     const scrollDistance = startTrigger - timelineRect.top;
@@ -119,7 +119,7 @@ function initTimelineScrollAnimation() {
       if (!marker) return;
 
       const markerTopInTimeline = marker.offsetTop;
-      
+
       if (currentHeightPx >= markerTopInTimeline + 8) {
         item.classList.add('active-marker');
       } else {
@@ -205,6 +205,29 @@ const projectData = {
     status: "Completed / Tested",
     github: "https://github.com/ajayanandh",
     demo: "https://ajayanandh.github.io/Portfolio-Aj/"
+  },
+  bizclear: {
+    title: "BizClear – Intelligent Approval and Compliance Management System",
+    category: "AI & Business Compliance",
+    description: "Developed an AI-powered platform designed to simplify government approvals and regulatory compliance for businesses. The application provides approval guidance, regulatory information, document assistance, and compliance support using Google Gemini AI and Retrieval-Augmented Generation (RAG).",
+    highlights: [
+      "AI-powered guidance for identifying required business approvals.",
+      "Regulatory information and compliance assistance.",
+      "Document preparation guidance for approval processes.",
+      "Intelligent responses using Google Gemini AI and RAG.",
+      "Simplified approval and compliance management for businesses."
+    ],
+    techStack: [
+      "Python",
+      "FastAPI",
+      "Google Gemini AI",
+      "Retrieval-Augmented Generation (RAG)",
+      "SQLite",
+      "Docker"
+    ],
+    status: "Developed / Tested",
+    github: "https://github.com/ajayanandh",
+    demo: "https://ajayanandh.github.io/Portfolio-Aj/"
   }
 };
 
@@ -275,7 +298,7 @@ function initResumeDownload() {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       showToast("Downloading Resume for Ajay Anandh S...");
-      
+
       setTimeout(() => {
         const link = document.createElement('a');
         link.href = 'assets/Ajay_Anandh_Resume.pdf'; // Ensure the PDF is placed in the assets folder
@@ -308,7 +331,7 @@ function showToast(message) {
   `;
 
   container.appendChild(toast);
-  
+
   setTimeout(() => toast.classList.add('show'), 50);
 
   setTimeout(() => {
@@ -433,7 +456,7 @@ function initCircuitParticleCanvas() {
       if (track.progress > 1.3) track.progress = -0.3;
 
       const currentX = track.progress * width;
-      
+
       const grad = ctx.createLinearGradient(currentX - track.length, track.y, currentX, track.y);
       grad.addColorStop(0, 'rgba(14, 165, 233, 0)');
       grad.addColorStop(0.7, `rgba(56, 189, 248, ${track.alpha})`);
@@ -519,7 +542,7 @@ function initIntroAnimation() {
   setTimeout(() => {
     introOverlay.classList.add('fade-out');
     document.body.classList.remove('no-scroll');
-    
+
     // Remove from DOM entirely after fade transition finishes
     setTimeout(() => {
       introOverlay.remove();
@@ -534,24 +557,24 @@ function initThemeToggle() {
   if (!themeToggle) return;
 
   const htmlElement = document.documentElement;
-  
+
   // Check local storage or system preference
   const savedTheme = localStorage.getItem('theme');
   const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
+
   let currentTheme = 'light';
   if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
     currentTheme = 'dark';
   }
-  
+
   // Apply initial theme
   setTheme(currentTheme);
-  
+
   themeToggle.addEventListener('click', () => {
     currentTheme = currentTheme === 'light' ? 'dark' : 'light';
     setTheme(currentTheme);
   });
-  
+
   function setTheme(theme) {
     const profileImg = document.getElementById('profileImage');
     const techImg = document.getElementById('techHudImg');

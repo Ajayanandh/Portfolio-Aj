@@ -22,6 +22,7 @@ A modern, minimalist, responsive personal portfolio website for **Ajay Anandh S*
 - **Projects**:
   - *Smart-Crop Advisory System* (Python, Data Analytics, Advisory engine for farmers)
   - *Child Safety Application* (Java/Python, Emergency assistance SOS, Location monitoring, alerts)
+  - *BizClear – Intelligent Approval and Compliance Management System* (Python, FastAPI, Google Gemini AI, RAG, SQLite, Docker)
 - **Certificates**:
   - Programming in Java in NPTEL (*Elite + Gold*)
   - Cloud Computing in NPTEL

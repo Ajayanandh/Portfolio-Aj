@@ -1308,9 +1308,10 @@ html[data-theme="dark"] .header.scrolled {
    ========================================================================== */
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2.2rem;
 }
+
 
 .project-card {
   background: var(--bg-card);
