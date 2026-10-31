@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" width="100%" height="100%" fill="none">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3F5F9"/>
+      <stop offset="50%" stop-color="#E8EDF5"/>
+      <stop offset="100%" stop-color="#DEE5F0"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAD7BF"/>
+      <stop offset="100%" stop-color="#E8BC9B"/>
+    </linearGradient>
+    <linearGradient id="jacket" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14161B"/>
+      <stop offset="100%" stop-color="#0B0D11"/>
+    </linearGradient>
+    <linearGradient id="shirt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F2F4F7"/>
+    </linearGradient>
+    <linearGradient id="sky-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <filter id="card-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="400" height="480" rx="32" fill="url(#bg-grad)"/>
+
+  <!-- Tech Geometric Decorative Elements -->
+  <circle cx="340" cy="70" r="40" fill="#38BDF8" fill-opacity="0.25"/>
+  <circle cx="60" cy="380" r="50" fill="#181A20" fill-opacity="0.04"/>
+  
+  <!-- Code/Tech Pattern Grid (subtle) -->
+  <g opacity="0.15" stroke="#181A20" stroke-width="1.5" stroke-dasharray="4 6">
+    <line x1="30" y1="40" x2="370" y2="40"/>
+    <line x1="30" y1="100" x2="120" y2="100"/>
+    <line x1="280" y1="100" x2="370" y2="100"/>
+    <line x1="40" y1="30" x2="40" y2="200"/>
+    <line x1="360" y1="30" x2="360" y2="200"/>
+  </g>
+
+  <!-- Shoulders & Coat -->
+  <path d="M 60 480 C 60 380, 110 330, 200 330 C 290 330, 340 380, 340 480 Z" fill="url(#jacket)" filter="url(#card-shadow)"/>
+  
+  <!-- Inner Collar & Shirt -->
+  <path d="M 160 330 L 200 395 L 240 330 Z" fill="url(#shirt)"/>
+  <path d="M 196 330 L 200 395 L 204 330 Z" fill="#0EA5E9"/>
+  
+  <!-- Neck -->
+  <path d="M 175 250 L 175 340 C 185 350, 215 350, 225 340 L 225 250 Z" fill="url(#skin)"/>
+  
+  <!-- Head & Face Base -->
+  <ellipse cx="200" cy="210" rx="65" ry="78" fill="url(#skin)"/>
+  
+  <!-- Modern Hair -->
+  <path d="M 130 200 C 130 130, 160 115, 200 115 C 245 115, 275 135, 272 205 C 265 170, 240 145, 200 145 C 160 145, 140 170, 130 200 Z" fill="#14161B"/>
+  <path d="M 138 175 C 145 130, 180 118, 210 118 C 248 118, 268 135, 268 165 C 255 140, 228 132, 200 132 C 168 132, 148 150, 138 175 Z" fill="#242831"/>
+  
+  <!-- Minimalist Glasses -->
+  <rect x="145" y="195" width="45" height="28" rx="8" fill="none" stroke="#14161B" stroke-width="4"/>
+  <rect x="210" y="195" width="45" height="28" rx="8" fill="none" stroke="#14161B" stroke-width="4"/>
+  <line x1="190" y1="208" x2="210" y2="208" stroke="#14161B" stroke-width="4"/>
+  <line x1="135" y1="205" x2="145" y2="205" stroke="#14161B" stroke-width="3"/>
+  <line x1="255" y1="205" x2="265" y2="205" stroke="#14161B" stroke-width="3"/>
+
+  <!-- Eyes behind glasses -->
+  <circle cx="168" cy="209" r="4.5" fill="#14161B"/>
+  <circle cx="232" cy="209" r="4.5" fill="#14161B"/>
+  
+  <!-- Nose & Smile -->
+  <path d="M 198 220 L 195 235 L 204 235" fill="none" stroke="#CE9772" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 184 252 Q 200 264 216 252" fill="none" stroke="#14161B" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Floating Tech Badges on Avatar -->
+  <!-- Top Left: CS / Code Tag -->
+  <g transform="translate(35, 45)">
+    <rect width="84" height="34" rx="17" fill="#FFFFFF" filter="url(#card-shadow)"/>
+    <circle cx="18" cy="17" r="5" fill="#0EA5E9"/>
+    <text x="32" y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#14161B">&lt;/dev&gt;</text>
+  </g>
+
+  <!-- Bottom Right: Data Tag -->
+  <g transform="translate(270, 360)">
+    <rect width="95" height="34" rx="17" fill="#14161B" filter="url(#card-shadow)"/>
+    <path d="M 16 22 L 22 14 L 28 18 L 34 10" fill="none" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="42" y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">DATA</text>
+  </g>
+</svg>
