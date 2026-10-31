@@ -19,8 +19,8 @@
   <meta property="og:url" content="https://ajayanandh.github.io/Portfolio-Aj/">
 
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/animations.css?v=6">
 
   <!-- Favicon (SVG Monogram) -->
   <link rel="icon"
@@ -310,6 +310,13 @@
         </div>
 
         <div class="about-grid">
+
+          <!-- Column 1: Interactive 3D Robot Companion -->
+          <div class="about-robot-stage" id="aboutRobotStage">
+            <div class="robot-canvas-wrapper" id="robotCanvasWrapper">
+              <canvas id="robotCanvas" aria-label="Interactive 3D Robot Companion"></canvas>
+            </div>
+          </div>
 
           <!-- Narrative Description -->
           <div class="about-narrative reveal delay-1">
@@ -1061,6 +1068,8 @@
   </div>
 
   <!-- JavaScript Scripts -->
+  <script src="js/three.min.js"></script>
+  <script src="js/robot3d.js?v=antennas1"></script>
   <script src="js/main.js"></script>
   <script src="js/contact.js"></script>
 </body>
