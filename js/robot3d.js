@@ -65,6 +65,12 @@
     targetLookX: 0,
     targetLookY: 0
   };
+  let lastFaceState = {
+    expression: 'happy',
+    blink: 0,
+    lookX: 0,
+    lookY: 0
+  };
 
   // Interaction & Animation Timers
   let mouse = { x: 0, y: 0, targetX: 0, targetY: 0, isHovered: false };
@@ -87,7 +93,7 @@
   let scrollTilt = 0;
 
   // Base Y height for head inside neckGroup
-  const HEAD_BASE_Y = 0.95;
+  const HEAD_BASE_Y = 0.82;
 
   // --- 1. Face & Expressive LED Screen Generator (PRESERVED UNCHANGED) ---
   function initFaceScreen() {
@@ -97,8 +103,8 @@
     faceCtx = faceCanvas.getContext('2d');
 
     faceTexture = new THREE.CanvasTexture(faceCanvas);
-    faceTexture.generateMipmaps = true;
-    faceTexture.minFilter = THREE.LinearMipmapLinearFilter;
+    faceTexture.generateMipmaps = false;
+    faceTexture.minFilter = THREE.LinearFilter;
     faceTexture.magFilter = THREE.LinearFilter;
 
     drawFace();
@@ -109,7 +115,7 @@
     const w = faceCanvas.width;
     const h = faceCanvas.height;
 
-    // Deep Obsidian Glossy Display Background
+    // Deep Obsidian Glossy Display Background (Solid, smooth sci-fi OLED)
     const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 20, w / 2, h / 2, 280);
     bgGrad.addColorStop(0, '#0C121E');
     bgGrad.addColorStop(0.65, '#070B12');
@@ -117,17 +123,11 @@
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Subtle Sci-Fi Display Scanlines
-    ctx.fillStyle = 'rgba(79, 209, 197, 0.025)';
-    for (let y = 0; y < h; y += 4) {
-      ctx.fillRect(0, y, w, 1.5);
-    }
-
     // Eye Centers with Cursor Gaze Offset
-    const eyeSpacing = 84;
+    const eyeSpacing = 72;
     const leftX = w / 2 - eyeSpacing + faceState.lookX;
     const rightX = w / 2 + eyeSpacing + faceState.lookX;
-    const eyeY = h / 2 - 14 + faceState.lookY;
+    const eyeY = h / 2 - 12 + faceState.lookY;
 
     const blinkScale = Math.max(0.04, 1 - faceState.blink);
 
@@ -142,23 +142,23 @@
         ctx.translate(cx, cy);
         ctx.scale(1, blinkScale);
 
-        const r = 38;
+        const r = 32;
         const start = Math.PI * 1.15;
         const end = Math.PI * 1.85;
 
         // Glow pass
-        ctx.shadowBlur = 30;
+        ctx.shadowBlur = 26;
         ctx.strokeStyle = 'rgba(79, 209, 197, 0.45)';
-        ctx.lineWidth = 26;
+        ctx.lineWidth = 22;
         ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.arc(0, r * 0.4, r, start, end, false);
         ctx.stroke();
 
         // Primary cyan stroke
-        ctx.shadowBlur = 18;
+        ctx.shadowBlur = 16;
         ctx.strokeStyle = '#4FD1C5';
-        ctx.lineWidth = 18;
+        ctx.lineWidth = 15;
         ctx.beginPath();
         ctx.arc(0, r * 0.4, r, start, end, false);
         ctx.stroke();
@@ -166,7 +166,7 @@
         // Bright white core
         ctx.shadowBlur = 6;
         ctx.strokeStyle = '#E6FFFA';
-        ctx.lineWidth = 8;
+        ctx.lineWidth = 7;
         ctx.beginPath();
         ctx.arc(0, r * 0.4, r, start, end, false);
         ctx.stroke();
@@ -179,13 +179,13 @@
 
       // Cute Animated Smile Mouth (︶)
       ctx.save();
-      ctx.translate(w / 2 + faceState.lookX * 0.4, eyeY + 68);
-      ctx.shadowBlur = 16;
+      ctx.translate(w / 2 + faceState.lookX * 0.4, eyeY + 56);
+      ctx.shadowBlur = 14;
       ctx.strokeStyle = '#4FD1C5';
-      ctx.lineWidth = 7;
+      ctx.lineWidth = 6;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.arc(0, -10, 22, Math.PI * 0.2, Math.PI * 0.8, false);
+      ctx.arc(0, -8, 18, Math.PI * 0.2, Math.PI * 0.8, false);
       ctx.stroke();
       ctx.restore();
 
@@ -196,25 +196,25 @@
         ctx.translate(cx, cy);
         ctx.scale(1, blinkScale);
 
-        const pillW = 32;
-        const pillH = 58;
+        const pillW = 26;
+        const pillH = 48;
 
-        ctx.shadowBlur = 28;
+        ctx.shadowBlur = 24;
         ctx.fillStyle = 'rgba(79, 209, 197, 0.4)';
         ctx.beginPath();
-        ctx.roundRect(-pillW / 2 - 4, -pillH / 2 - 4, pillW + 8, pillH + 8, 16);
+        ctx.roundRect(-pillW / 2 - 3, -pillH / 2 - 3, pillW + 6, pillH + 6, 14);
         ctx.fill();
 
-        ctx.shadowBlur = 16;
+        ctx.shadowBlur = 14;
         ctx.fillStyle = '#4FD1C5';
         ctx.beginPath();
-        ctx.roundRect(-pillW / 2, -pillH / 2, pillW, pillH, 14);
+        ctx.roundRect(-pillW / 2, -pillH / 2, pillW, pillH, 12);
         ctx.fill();
 
         ctx.shadowBlur = 6;
         ctx.fillStyle = '#E6FFFA';
         ctx.beginPath();
-        ctx.roundRect(-pillW / 2 + 4, -pillH / 2 + 4, pillW - 8, pillH - 8, 10);
+        ctx.roundRect(-pillW / 2 + 3, -pillH / 2 + 3, pillW - 6, pillH - 6, 8);
         ctx.fill();
 
         ctx.restore();
@@ -225,14 +225,14 @@
 
       // Subtle Neutral Mouth Line
       ctx.save();
-      ctx.translate(w / 2 + faceState.lookX * 0.4, eyeY + 62);
+      ctx.translate(w / 2 + faceState.lookX * 0.4, eyeY + 52);
       ctx.shadowBlur = 12;
       ctx.strokeStyle = '#4FD1C5';
       ctx.lineWidth = 5;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(-14, 0);
-      ctx.lineTo(14, 0);
+      ctx.moveTo(-12, 0);
+      ctx.lineTo(12, 0);
       ctx.stroke();
       ctx.restore();
 
@@ -243,16 +243,16 @@
         ctx.translate(cx, cy);
         ctx.scale(1, blinkScale);
 
-        ctx.shadowBlur = 28;
+        ctx.shadowBlur = 24;
         ctx.fillStyle = '#4FD1C5';
         ctx.beginPath();
-        ctx.arc(0, 0, 24, 0, Math.PI * 2);
+        ctx.arc(0, 0, 20, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.shadowBlur = 8;
         ctx.fillStyle = '#E6FFFA';
         ctx.beginPath();
-        ctx.arc(0, 0, 14, 0, Math.PI * 2);
+        ctx.arc(0, 0, 12, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.restore();
@@ -263,12 +263,12 @@
 
       // Surprised 'o' mouth
       ctx.save();
-      ctx.translate(w / 2 + faceState.lookX * 0.4, eyeY + 65);
+      ctx.translate(w / 2 + faceState.lookX * 0.4, eyeY + 54);
       ctx.shadowBlur = 14;
       ctx.strokeStyle = '#4FD1C5';
-      ctx.lineWidth = 6;
+      ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
 
@@ -277,34 +277,34 @@
       ctx.save();
       ctx.translate(leftX, eyeY);
       ctx.scale(1, blinkScale);
-      ctx.shadowBlur = 24;
+      ctx.shadowBlur = 22;
       ctx.fillStyle = '#4FD1C5';
       ctx.beginPath();
-      ctx.roundRect(-16, -28, 32, 56, 14);
+      ctx.roundRect(-13, -24, 26, 48, 12);
       ctx.fill();
       ctx.restore();
 
       ctx.save();
       ctx.translate(rightX, eyeY);
-      ctx.shadowBlur = 20;
+      ctx.shadowBlur = 18;
       ctx.strokeStyle = '#4FD1C5';
-      ctx.lineWidth = 14;
+      ctx.lineWidth = 12;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
-      ctx.moveTo(-22, 10);
-      ctx.lineTo(0, -12);
-      ctx.lineTo(22, 10);
+      ctx.moveTo(-18, 8);
+      ctx.lineTo(0, -10);
+      ctx.lineTo(18, 8);
       ctx.stroke();
       ctx.restore();
 
       ctx.save();
-      ctx.translate(w / 2, eyeY + 65);
+      ctx.translate(w / 2, eyeY + 54);
       ctx.strokeStyle = '#4FD1C5';
-      ctx.lineWidth = 6;
+      ctx.lineWidth = 5;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.arc(0, -8, 20, Math.PI * 0.2, Math.PI * 0.8, false);
+      ctx.arc(0, -7, 16, Math.PI * 0.2, Math.PI * 0.8, false);
       ctx.stroke();
       ctx.restore();
     }
@@ -375,6 +375,10 @@
       }),
       screenDisplay: new THREE.MeshBasicMaterial({
         map: faceTexture,
+        polygonOffset: true,
+        polygonOffsetFactor: -4,
+        polygonOffsetUnits: -4,
+        depthWrite: false,
         name: 'screenDisplay'
       }),
       bezelDark: new THREE.MeshStandardMaterial({
@@ -496,18 +500,18 @@
     // A. Pelvis & Waist Pod (Smooth Rounded Chassis)
     // ==========================================
     pelvisGroup = new THREE.Group();
-    pelvisGroup.position.y = -0.38;
+    pelvisGroup.position.y = -0.44;
 
-    const pelvisGeo = createCapsuleGeo(0.24, 0.26, 22);
+    const pelvisGeo = createCapsuleGeo(0.27, 0.30, 22);
     const pelvisMesh = new THREE.Mesh(pelvisGeo, mats.whitePlastic);
     pelvisMesh.rotation.z = Math.PI / 2;
-    pelvisMesh.scale.set(0.72, 1.15, 0.78);
+    pelvisMesh.scale.set(0.74, 1.20, 0.80);
     pelvisMesh.castShadow = true;
     pelvisGroup.add(pelvisMesh);
 
     // Exposed Silver Waist Spring Joint
-    const waistJoint = createSpringJoint(0.22, 0.18, 3, mats);
-    waistJoint.position.y = 0.16;
+    const waistJoint = createSpringJoint(0.24, 0.20, 3, mats);
+    waistJoint.position.y = 0.18;
     pelvisGroup.add(waistJoint);
 
     robotRoot.add(pelvisGroup);
@@ -518,20 +522,20 @@
     function createChibiLeg(isLeft) {
       const legGroup = new THREE.Group();
       const sign = isLeft ? -1 : 1;
-      legGroup.position.set(sign * 0.35, -0.42, 0.02);
+      legGroup.position.set(sign * 0.40, -0.48, 0.02);
 
       // 1. Hip Spring Joint
-      const hipSpring = createSpringJoint(0.19, 0.13, 2, mats);
+      const hipSpring = createSpringJoint(0.21, 0.15, 2, mats);
       legGroup.add(hipSpring);
 
       // 2. Thigh
       const thighGroup = new THREE.Group();
-      thighGroup.position.y = -0.10;
+      thighGroup.position.y = -0.11;
 
-      const thighGeo = createCapsuleGeo(0.155, 0.26, 24);
+      const thighGeo = createCapsuleGeo(0.175, 0.30, 24);
       const thighMesh = new THREE.Mesh(thighGeo, mats.whiteGloss);
-      thighMesh.position.y = -0.14;
-      thighMesh.scale.set(1.0, 1.0, 1.06);
+      thighMesh.position.y = -0.16;
+      thighMesh.scale.set(1.02, 1.0, 1.06);
       thighMesh.castShadow = true;
       thighGroup.add(thighMesh);
 
@@ -539,24 +543,24 @@
 
       // 3. Knee Spring Joint
       const kneeGroup = new THREE.Group();
-      kneeGroup.position.y = -0.42;
+      kneeGroup.position.y = -0.46;
 
-      const kneeSpring = createSpringJoint(0.16, 0.12, 3, mats);
+      const kneeSpring = createSpringJoint(0.18, 0.13, 3, mats);
       kneeGroup.add(kneeSpring);
 
-      const kneeDiscGeo = new THREE.CylinderGeometry(0.095, 0.095, 0.035, 20);
+      const kneeDiscGeo = new THREE.CylinderGeometry(0.105, 0.105, 0.038, 20);
       kneeDiscGeo.rotateZ(Math.PI / 2);
       const kneeDisc = new THREE.Mesh(kneeDiscGeo, mats.silverJoint);
-      kneeDisc.position.set(sign * 0.14, 0, 0);
+      kneeDisc.position.set(sign * 0.15, 0, 0);
       kneeGroup.add(kneeDisc);
 
       // 4. Shin / Calf
       const calfGroup = new THREE.Group();
       calfGroup.position.y = -0.06;
 
-      const calfGeo = createTaperedCapsuleGeo(0.125, 0.155, 0.25, 24);
+      const calfGeo = createTaperedCapsuleGeo(0.14, 0.175, 0.28, 24);
       const calfMesh = new THREE.Mesh(calfGeo, mats.whiteGloss);
-      calfMesh.position.set(0, -0.15, 0.02);
+      calfMesh.position.set(0, -0.17, 0.02);
       calfMesh.castShadow = true;
       calfGroup.add(calfMesh);
 
@@ -565,49 +569,49 @@
 
       // 5. Ankle Spring Joint
       const ankleGroup = new THREE.Group();
-      ankleGroup.position.y = -0.34;
-      const ankleSpring = createSpringJoint(0.12, 0.10, 2, mats);
+      ankleGroup.position.y = -0.38;
+      const ankleSpring = createSpringJoint(0.13, 0.11, 2, mats);
       ankleGroup.add(ankleSpring);
 
       // 6. Futuristic Chibi Boot
       const bootGroup = new THREE.Group();
-      bootGroup.position.y = -0.08;
+      bootGroup.position.y = -0.09;
 
-      const toeGeo = new THREE.SphereGeometry(0.175, 22, 18);
-      toeGeo.scale(1.04, 0.74, 1.36);
+      const toeGeo = new THREE.SphereGeometry(0.195, 22, 18);
+      toeGeo.scale(1.05, 0.74, 1.36);
       const toe = new THREE.Mesh(toeGeo, mats.whiteGloss);
-      toe.position.set(0, -0.05, 0.08);
+      toe.position.set(0, -0.06, 0.09);
       toe.castShadow = true;
       bootGroup.add(toe);
 
-      const collarGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.10, 20);
+      const collarGeo = new THREE.CylinderGeometry(0.13, 0.15, 0.11, 20);
       const collar = new THREE.Mesh(collarGeo, mats.whitePlastic);
       collar.position.set(0, 0.02, -0.02);
       bootGroup.add(collar);
 
-      const ankleDiscGeo = new THREE.CylinderGeometry(0.11, 0.11, 0.035, 20);
+      const ankleDiscGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.038, 20);
       ankleDiscGeo.rotateZ(Math.PI / 2);
       const ankleDisc = new THREE.Mesh(ankleDiscGeo, mats.silverJoint);
-      ankleDisc.position.set(sign * 0.18, 0.01, 0.01);
+      ankleDisc.position.set(sign * 0.20, 0.01, 0.01);
       bootGroup.add(ankleDisc);
 
-      const rivetGeo = new THREE.SphereGeometry(0.035, 12, 12);
+      const rivetGeo = new THREE.SphereGeometry(0.038, 12, 12);
       rivetGeo.scale(0.5, 1, 1);
       const rivet = new THREE.Mesh(rivetGeo, mats.chrome);
-      rivet.position.set(sign * 0.205, 0.01, 0.01);
+      rivet.position.set(sign * 0.228, 0.01, 0.01);
       bootGroup.add(rivet);
 
-      const soleRingGeo = new THREE.TorusGeometry(0.18, 0.024, 12, 24);
+      const soleRingGeo = new THREE.TorusGeometry(0.20, 0.026, 12, 24);
       soleRingGeo.rotateX(Math.PI / 2);
       soleRingGeo.scale(0.96, 1.32, 1.0);
       const soleRing = new THREE.Mesh(soleRingGeo, mats.turquoiseAccent);
-      soleRing.position.set(0, -0.14, 0.08);
+      soleRing.position.set(0, -0.15, 0.09);
       bootGroup.add(soleRing);
 
-      const treadGeo = new THREE.CylinderGeometry(0.17, 0.17, 0.03, 22);
+      const treadGeo = new THREE.CylinderGeometry(0.19, 0.19, 0.032, 22);
       treadGeo.scale(0.95, 1.0, 1.35);
       const tread = new THREE.Mesh(treadGeo, mats.bezelDark);
-      tread.position.set(0, -0.16, 0.08);
+      tread.position.set(0, -0.17, 0.09);
       bootGroup.add(tread);
 
       ankleGroup.add(bootGroup);
@@ -628,63 +632,63 @@
     torsoGroup.position.y = 0.16;
 
     const torsoCurve = new THREE.SplineCurve([
-      new THREE.Vector2(0, -0.42),
-      new THREE.Vector2(0.25, -0.40),
-      new THREE.Vector2(0.36, -0.20),
-      new THREE.Vector2(0.42, 0.06),
-      new THREE.Vector2(0.38, 0.28),
-      new THREE.Vector2(0.24, 0.42),
-      new THREE.Vector2(0, 0.43)
+      new THREE.Vector2(0, -0.48),
+      new THREE.Vector2(0.28, -0.46),
+      new THREE.Vector2(0.39, -0.24),
+      new THREE.Vector2(0.47, 0.06),
+      new THREE.Vector2(0.44, 0.32),
+      new THREE.Vector2(0.28, 0.48),
+      new THREE.Vector2(0, 0.49)
     ]);
-    const torsoPts = torsoCurve.getPoints(26);
+    const torsoPts = torsoCurve.getPoints(28);
     const torsoGeo = new THREE.LatheGeometry(torsoPts, 32);
     const torsoMesh = new THREE.Mesh(torsoGeo, mats.whiteGloss);
-    torsoMesh.scale.set(1.18, 1.0, 0.88);
+    torsoMesh.scale.set(1.24, 1.0, 0.90);
     torsoMesh.castShadow = true;
     torsoGroup.add(torsoMesh);
 
     // Turquoise Inverted Triangular Chest Detail (#4FD1C5)
     const chestShape = new THREE.Shape();
-    chestShape.moveTo(-0.16, 0.12);
-    chestShape.lineTo(0.16, 0.12);
-    chestShape.lineTo(0, -0.14);
+    chestShape.moveTo(-0.18, 0.14);
+    chestShape.lineTo(0.18, 0.14);
+    chestShape.lineTo(0, -0.16);
     chestShape.closePath();
 
     const chestExtrude = new THREE.ExtrudeGeometry(chestShape, {
-      depth: 0.04,
+      depth: 0.045,
       bevelEnabled: true,
-      bevelSize: 0.016,
-      bevelThickness: 0.016,
+      bevelSize: 0.018,
+      bevelThickness: 0.018,
       bevelSegments: 2
     });
     chestExtrude.center();
     const chestEmblem = new THREE.Mesh(chestExtrude, mats.turquoiseAccent);
-    chestEmblem.position.set(0, 0.08, 0.36);
+    chestEmblem.position.set(0, 0.10, 0.41);
     chestEmblem.rotation.x = -0.08;
     torsoGroup.add(chestEmblem);
 
     // Glowing Cyan Core Dot on Chest Detail
-    const coreDotGeo = new THREE.SphereGeometry(0.042, 16, 16);
+    const coreDotGeo = new THREE.SphereGeometry(0.046, 16, 16);
     const coreDot = new THREE.Mesh(coreDotGeo, mats.turquoiseGlow);
-    coreDot.position.set(0, 0.08, 0.395);
+    coreDot.position.set(0, 0.10, 0.45);
     torsoGroup.add(coreDot);
 
     // Smooth Curved Backpack Housing on Back
-    const packGeo = createCapsuleGeo(0.22, 0.30, 20);
+    const packGeo = createCapsuleGeo(0.25, 0.34, 20);
     const packMesh = new THREE.Mesh(packGeo, mats.whitePlastic);
     packMesh.rotation.z = Math.PI / 2;
-    packMesh.scale.set(0.68, 1.05, 0.60);
-    packMesh.position.set(0, 0.06, -0.34);
+    packMesh.scale.set(0.70, 1.10, 0.62);
+    packMesh.position.set(0, 0.08, -0.38);
     torsoGroup.add(packMesh);
 
     // Dual Silver Circular Exhaust/Sensor Vents on Backpack
-    const ventGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.04, 18);
+    const ventGeo = new THREE.CylinderGeometry(0.10, 0.10, 0.045, 18);
     ventGeo.rotateX(Math.PI / 2);
     const ventL = new THREE.Mesh(ventGeo, mats.silverJoint);
-    ventL.position.set(-0.16, 0.06, -0.44);
+    ventL.position.set(-0.18, 0.08, -0.49);
     torsoGroup.add(ventL);
     const ventR = ventL.clone();
-    ventR.position.x = 0.16;
+    ventR.position.x = 0.18;
     torsoGroup.add(ventR);
 
     // ==========================================
@@ -692,31 +696,31 @@
     // ==========================================
     // Placed precisely atop the upper torso shell
     neckGroup = new THREE.Group();
-    neckGroup.position.y = 0.42;
+    neckGroup.position.y = 0.48;
 
     // 1. Bottom Circular Joint Connector (Mounting Flange on Torso)
-    const baseFlangeGeo = new THREE.CylinderGeometry(0.24, 0.26, 0.045, 24);
+    const baseFlangeGeo = new THREE.CylinderGeometry(0.27, 0.29, 0.05, 24);
     const baseFlange = new THREE.Mesh(baseFlangeGeo, mats.darkGraphite);
-    baseFlange.position.y = 0.022;
+    baseFlange.position.y = 0.025;
     neckGroup.add(baseFlange);
 
-    const baseCollarGeo = new THREE.CylinderGeometry(0.21, 0.23, 0.035, 24);
+    const baseCollarGeo = new THREE.CylinderGeometry(0.24, 0.26, 0.04, 24);
     const baseCollar = new THREE.Mesh(baseCollarGeo, mats.graphiteRing);
-    baseCollar.position.y = 0.045;
+    baseCollar.position.y = 0.048;
     neckGroup.add(baseCollar);
 
     // Subtle Turquoise Accent Ring at Bottom Connector
-    const baseTurquoiseGeo = new THREE.TorusGeometry(0.22, 0.016, 12, 28);
+    const baseTurquoiseGeo = new THREE.TorusGeometry(0.25, 0.018, 12, 28);
     baseTurquoiseGeo.rotateX(Math.PI / 2);
     const baseTurquoise = new THREE.Mesh(baseTurquoiseGeo, mats.turquoiseAccent);
-    baseTurquoise.position.y = 0.045;
+    baseTurquoise.position.y = 0.048;
     neckGroup.add(baseTurquoise);
 
     // 4 Miniature Silver Hex Connector Bolts
     for (let b = 0; b < 4; b++) {
       const angle = (b * Math.PI) / 2 + Math.PI / 4;
       const bolt = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.015, 8), mats.chrome);
-      bolt.position.set(Math.cos(angle) * 0.22, 0.045, Math.sin(angle) * 0.22);
+      bolt.position.set(Math.cos(angle) * 0.25, 0.048, Math.sin(angle) * 0.25);
       neckGroup.add(bolt);
     }
 
@@ -725,39 +729,39 @@
     neckStem.position.y = 0.05;
 
     // Dark graphite telescopic hydraulic sleeve
-    const outerSleeveGeo = new THREE.CylinderGeometry(0.12, 0.13, 0.14, 20);
+    const outerSleeveGeo = new THREE.CylinderGeometry(0.13, 0.14, 0.15, 20);
     const outerSleeve = new THREE.Mesh(outerSleeveGeo, mats.darkGraphite);
-    outerSleeve.position.y = 0.07;
+    outerSleeve.position.y = 0.075;
     neckStem.add(outerSleeve);
 
     // Shiny polished chrome inner sliding piston
-    const innerPistonGeo = new THREE.CylinderGeometry(0.095, 0.095, 0.17, 20);
+    const innerPistonGeo = new THREE.CylinderGeometry(0.105, 0.105, 0.18, 20);
     const innerPiston = new THREE.Mesh(innerPistonGeo, mats.chrome);
-    innerPiston.position.y = 0.14;
+    innerPiston.position.y = 0.15;
     neckStem.add(innerPiston);
 
     // 3 Exposed Metallic Brushed Silver Spring-like Segments (Bellows Rings)
-    const springRadii = [0.165, 0.160, 0.155];
+    const springRadii = [0.18, 0.175, 0.170];
     for (let s = 0; s < 3; s++) {
       const springRingGeo = new THREE.TorusGeometry(springRadii[s], 0.026, 12, 24);
       springRingGeo.rotateX(Math.PI / 2);
       const springRing = new THREE.Mesh(springRingGeo, mats.brushedSilver);
-      springRing.position.y = 0.06 + s * 0.065;
+      springRing.position.y = 0.065 + s * 0.065;
       neckStem.add(springRing);
     }
 
     // Subtle Turquoise Accent Ring in Mid-Neck
-    const midTurquoiseGeo = new THREE.TorusGeometry(0.135, 0.015, 12, 24);
+    const midTurquoiseGeo = new THREE.TorusGeometry(0.15, 0.016, 12, 24);
     midTurquoiseGeo.rotateX(Math.PI / 2);
     const midTurquoise = new THREE.Mesh(midTurquoiseGeo, mats.turquoiseAccent);
-    midTurquoise.position.y = 0.125;
+    midTurquoise.position.y = 0.135;
     neckStem.add(midTurquoise);
 
     // Side micro-hydraulic stabilizer struts (visible mechanical details from sides)
     function createSideStrut(isLeft) {
       const strutGroup = new THREE.Group();
       const sign = isLeft ? -1 : 1;
-      strutGroup.position.set(sign * 0.16, 0.11, 0);
+      strutGroup.position.set(sign * 0.175, 0.11, 0);
 
       const strutBody = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.16, 10), mats.darkGraphite);
       strutGroup.add(strutBody);
@@ -781,30 +785,30 @@
 
     // 3. Top Circular Joint Connector (Mounting Collar on Under-Head)
     const topCollarGroup = new THREE.Group();
-    topCollarGroup.position.y = 0.24;
+    topCollarGroup.position.y = 0.25;
 
     // Brushed silver spherical gimbal pivot ball
-    const gimbalBallGeo = new THREE.SphereGeometry(0.125, 18, 18);
+    const gimbalBallGeo = new THREE.SphereGeometry(0.135, 18, 18);
     const gimbalBall = new THREE.Mesh(gimbalBallGeo, mats.brushedSilver);
     topCollarGroup.add(gimbalBall);
 
     // Dark graphite socket flange
-    const topSocketGeo = new THREE.CylinderGeometry(0.24, 0.20, 0.045, 24);
+    const topSocketGeo = new THREE.CylinderGeometry(0.26, 0.22, 0.05, 24);
     const topSocket = new THREE.Mesh(topSocketGeo, mats.darkGraphite);
     topSocket.position.y = 0.025;
     topCollarGroup.add(topSocket);
 
     // Subtle Turquoise Accent Ring at Top Connector
-    const topTurquoiseGeo = new THREE.TorusGeometry(0.21, 0.016, 12, 28);
+    const topTurquoiseGeo = new THREE.TorusGeometry(0.23, 0.018, 12, 28);
     topTurquoiseGeo.rotateX(Math.PI / 2);
     const topTurquoise = new THREE.Mesh(topTurquoiseGeo, mats.turquoiseAccent);
-    topTurquoise.position.y = 0.038;
+    topTurquoise.position.y = 0.040;
     topCollarGroup.add(topTurquoise);
 
     // Top head mounting plate
-    const topPlateGeo = new THREE.CylinderGeometry(0.26, 0.24, 0.030, 24);
+    const topPlateGeo = new THREE.CylinderGeometry(0.28, 0.26, 0.032, 24);
     const topPlate = new THREE.Mesh(topPlateGeo, mats.graphiteRing);
-    topPlate.position.y = 0.052;
+    topPlate.position.y = 0.055;
     topCollarGroup.add(topPlate);
 
     neckStem.add(topCollarGroup);
@@ -816,10 +820,10 @@
     headGroup = new THREE.Group();
     headGroup.position.y = HEAD_BASE_Y; // Resting cleanly atop the top neck connector
 
-    const headW = 1.68;
-    const headH = 1.24;
-    const headD = 1.12;
-    const headBevel = 0.24;
+    const headW = 1.28;
+    const headH = 0.96;
+    const headD = 0.92;
+    const headBevel = 0.19;
 
     // Outer white casing
     const helmetGeo = createRoundedBox(headW, headH, headD, headBevel, 4);
@@ -828,213 +832,276 @@
     headGroup.add(helmetMesh);
 
     // Recessed dark bezel frame
-    const bezelGeo = createRoundedBox(1.38, 0.96, 0.08, 0.14, 3);
+    const bezelGeo = createRoundedBox(1.05, 0.74, 0.07, 0.11, 3);
     const bezelMesh = new THREE.Mesh(bezelGeo, mats.bezelDark);
-    bezelMesh.position.set(0, 0, 0.52);
+    bezelMesh.position.set(0, 0, 0.42);
     headGroup.add(bezelMesh);
 
     // Front OLED Display with Animated Cyan LED Eyes & Mouth
-    const screenGeo = new THREE.PlaneGeometry(1.28, 0.86);
+    // Positioned cleanly with polygonOffset and depthWrite: false to eliminate Z-fighting
+    const screenGeo = new THREE.PlaneGeometry(0.97, 0.66);
     const screenMesh = new THREE.Mesh(screenGeo, mats.screenDisplay);
-    screenMesh.position.set(0, 0, 0.565);
+    screenMesh.position.set(0, 0, 0.468);
     headGroup.add(screenMesh);
 
-    // Side Ear Details
-    function createSideEar(isLeft) {
+    // Headphone Ears with Turquoise Accent and Integrated Vertical Antennas (Matching attached image)
+    function createHeadphoneEar(isLeft) {
       const earGroup = new THREE.Group();
       const sign = isLeft ? -1 : 1;
       earGroup.position.set(sign * (headW / 2 + 0.01), 0, 0);
 
-      const collarRingGeo = new THREE.TorusGeometry(0.26, 0.035, 12, 24);
-      collarRingGeo.rotateY(Math.PI / 2);
-      const collarRing = new THREE.Mesh(collarRingGeo, mats.whitePlastic);
-      earGroup.add(collarRing);
+      // 1. Connection Collar to Helmet
+      const collarGeo = new THREE.CylinderGeometry(0.11, 0.13, 0.04, 20);
+      collarGeo.rotateZ(Math.PI / 2);
+      const collar = new THREE.Mesh(collarGeo, mats.whitePlastic);
+      collar.position.x = sign * 0.02;
+      earGroup.add(collar);
 
-      const earDiscGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.06, 24);
-      earDiscGeo.rotateZ(Math.PI / 2);
-      const earDisc = new THREE.Mesh(earDiscGeo, mats.silverJoint);
-      earDisc.position.x = sign * 0.02;
-      earGroup.add(earDisc);
+      // 2. White Headphone Ear Cup Body
+      const cupWidth = 0.12;
+      const cupHeight = 0.38;
+      const cupDepth = 0.28;
+      const cupGeo = createRoundedBox(cupWidth, cupHeight, cupDepth, 0.05, 3);
+      const cupMesh = new THREE.Mesh(cupGeo, mats.whiteGloss);
+      cupMesh.position.x = sign * (0.04 + cupWidth / 2);
+      cupMesh.castShadow = true;
+      earGroup.add(cupMesh);
 
-      const rivetGeo = new THREE.SphereGeometry(0.06, 12, 12);
-      rivetGeo.scale(0.4, 1, 1);
-      const rivet = new THREE.Mesh(rivetGeo, mats.chrome);
-      rivet.position.x = sign * 0.06;
-      earGroup.add(rivet);
+      // 3. Turquoise Horizontal Accent Block / Cushion (Wrapping across center of ear cup)
+      const accentWidth = 0.15;
+      const accentHeight = 0.14;
+      const accentDepth = 0.26;
+      const accentGeo = createRoundedBox(accentWidth, accentHeight, accentDepth, 0.03, 2);
+      const accentMesh = new THREE.Mesh(accentGeo, mats.turquoiseAccent);
+      accentMesh.position.x = sign * (0.04 + accentWidth / 2 + 0.002);
+      accentMesh.castShadow = true;
+      earGroup.add(accentMesh);
 
-      return earGroup;
+      // 4. White Antenna Stalk (Extends straight up out of top of ear cup)
+      const antennaRoot = new THREE.Group();
+      antennaRoot.position.set(sign * (0.04 + cupWidth / 2), cupHeight / 2 - 0.01, 0);
+      antennaRoot.rotation.z = sign * -0.06;
+      antennaRoot.rotation.x = -0.02;
+
+      // Small antenna socket mount
+      const socketGeo = new THREE.CylinderGeometry(0.028, 0.034, 0.025, 16);
+      const socket = new THREE.Mesh(socketGeo, mats.whitePlastic);
+      socket.position.y = 0.012;
+      antennaRoot.add(socket);
+
+      // White antenna bar with rounded top cap
+      const stalkHeight = 0.44;
+      const stalkGeo = createRoundedBox(0.044, stalkHeight, 0.050, 0.018, 2);
+      const stalkMesh = new THREE.Mesh(stalkGeo, mats.whiteGloss);
+      stalkMesh.position.y = stalkHeight / 2 + 0.02;
+      stalkMesh.castShadow = true;
+      antennaRoot.add(stalkMesh);
+
+      earGroup.add(antennaRoot);
+
+      return { root: earGroup, antenna: antennaRoot };
     }
 
-    headGroup.add(createSideEar(true));
-    headGroup.add(createSideEar(false));
+    const earL = createHeadphoneEar(true);
+    const earR = createHeadphoneEar(false);
+    antennaL = earL.antenna;
+    antennaR = earR.antenna;
+    headGroup.add(earL.root);
+    headGroup.add(earR.root);
 
     // Top Center Turquoise Crest Badge (Matching reference image)
-    const crestGeo = createRoundedBox(0.44, 0.12, 0.32, 0.04, 2);
+    const crestGeo = createRoundedBox(0.34, 0.09, 0.25, 0.03, 2);
     const crest = new THREE.Mesh(crestGeo, mats.turquoiseAccent);
-    crest.position.set(0, headH / 2 + 0.04, 0);
+    crest.position.set(0, headH / 2 + 0.035, 0);
     headGroup.add(crest);
-
-    // Two Small, Elegant Antennas on Top Corners (Left & Right)
-    function createCornerAntenna(isLeft) {
-      const antennaRoot = new THREE.Group();
-      const sign = isLeft ? -1 : 1;
-      antennaRoot.position.set(sign * (headW * 0.40), headH / 2 + 0.02, 0);
-      antennaRoot.rotation.z = sign * -0.16;
-      antennaRoot.rotation.x = -0.05;
-
-      // Small metallic circular mounting base
-      const baseGeo = new THREE.CylinderGeometry(0.045, 0.055, 0.035, 16);
-      const base = new THREE.Mesh(baseGeo, mats.silverJoint);
-      antennaRoot.add(base);
-
-      // Subtle turquoise collar ring
-      const ringGeo = new THREE.TorusGeometry(0.048, 0.012, 10, 20);
-      ringGeo.rotateX(Math.PI / 2);
-      const ring = new THREE.Mesh(ringGeo, mats.turquoiseAccent);
-      ring.position.y = 0.02;
-      antennaRoot.add(ring);
-
-      // Slim, slightly curved metallic white stem
-      const stemGeo = new THREE.CylinderGeometry(0.020, 0.026, 0.30, 14);
-      const stem = new THREE.Mesh(stemGeo, mats.whiteGloss);
-      stem.position.y = 0.16;
-      antennaRoot.add(stem);
-
-      // Small glowing cyan/teal tip matching accent color
-      const tipGeo = new THREE.SphereGeometry(0.040, 16, 16);
-      const tip = new THREE.Mesh(tipGeo, mats.antennaTip);
-      tip.position.y = 0.32;
-      antennaRoot.add(tip);
-
-      return antennaRoot;
-    }
-
-    antennaL = createCornerAntenna(true);
-    antennaR = createCornerAntenna(false);
-    headGroup.add(antennaL);
-    headGroup.add(antennaR);
 
     neckGroup.add(headGroup);
     torsoGroup.add(neckGroup);
 
     // ==========================================
-    // F. Short, Rounded Articulated Arms & Hands
+    // F. Articulated Arms & Hands
     // ==========================================
     function createChibiArm(isRight) {
       const armGroup = new THREE.Group();
       const sign = isRight ? 1 : -1;
-      armGroup.position.set(sign * 0.56, 0.24, 0);
+      armGroup.position.set(sign * 0.65, 0.28, 0);
 
       // 1. Shoulder Spring Joint
-      const shoulderSpring = createSpringJoint(0.16, 0.12, 2, mats);
+      const shoulderSpring = createSpringJoint(0.18, 0.13, 2, mats);
       armGroup.add(shoulderSpring);
 
-      const pauldronGeo = new THREE.SphereGeometry(0.18, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.6);
+      const pauldronGeo = new THREE.SphereGeometry(0.20, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.6);
       const pauldron = new THREE.Mesh(pauldronGeo, mats.whiteGloss);
-      pauldron.position.set(sign * 0.04, 0.04, 0);
+      pauldron.position.set(sign * 0.045, 0.045, 0);
       pauldron.rotation.z = sign * -0.4;
       armGroup.add(pauldron);
 
-      // 2. Short Rounded Upper Arm
+      // 2. Upper Arm
       const upperArm = new THREE.Group();
-      upperArm.position.set(sign * 0.08, -0.06, 0);
+      upperArm.position.set(sign * 0.09, -0.07, 0);
 
-      const upperArmGeo = createCapsuleGeo(0.115, 0.20, 20);
+      const upperArmGeo = createCapsuleGeo(0.125, 0.22, 20);
       const upperArmMesh = new THREE.Mesh(upperArmGeo, mats.whiteGloss);
-      upperArmMesh.position.y = -0.12;
+      upperArmMesh.position.y = -0.13;
       upperArmMesh.castShadow = true;
       upperArm.add(upperArmMesh);
 
       // 3. Elbow Spring Joint
       const elbow = new THREE.Group();
-      elbow.position.y = -0.30;
+      elbow.position.y = -0.33;
 
-      const elbowSpring = createSpringJoint(0.14, 0.10, 3, mats);
+      const elbowSpring = createSpringJoint(0.15, 0.11, 3, mats);
       elbow.add(elbowSpring);
 
-      const elbowCapGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.03, 18);
+      const elbowCapGeo = new THREE.CylinderGeometry(0.088, 0.088, 0.033, 18);
       elbowCapGeo.rotateZ(Math.PI / 2);
       const elbowCap = new THREE.Mesh(elbowCapGeo, mats.silverJoint);
-      elbowCap.position.x = sign * 0.10;
+      elbowCap.position.x = sign * 0.11;
       elbow.add(elbowCap);
 
       // 4. Forearm with Turquoise Accent Band
       const forearm = new THREE.Group();
       forearm.position.y = -0.04;
 
-      const forearmGeo = createTaperedCapsuleGeo(0.10, 0.12, 0.22, 20);
+      const forearmGeo = createTaperedCapsuleGeo(0.11, 0.135, 0.24, 20);
       const forearmMesh = new THREE.Mesh(forearmGeo, mats.whiteGloss);
-      forearmMesh.position.y = -0.13;
+      forearmMesh.position.y = -0.14;
       forearmMesh.castShadow = true;
       forearm.add(forearmMesh);
 
-      const wristBandGeo = new THREE.CylinderGeometry(0.115, 0.115, 0.045, 20);
+      const wristBandGeo = new THREE.CylinderGeometry(0.125, 0.125, 0.048, 20);
       const wristBand = new THREE.Mesh(wristBandGeo, mats.turquoiseAccent);
-      wristBand.position.y = -0.25;
+      wristBand.position.y = -0.27;
       forearm.add(wristBand);
 
-      // 5. Exposed Silver Spring Wrist Joint
-      const wristJoint = createSpringJoint(0.09, 0.08, 2, mats);
-      wristJoint.position.y = -0.30;
-      forearm.add(wristJoint);
+      // 5. Exposed Metallic Wrist Joint (Swivel collar + silver spring bellows)
+      const wristGroup = new THREE.Group();
+      wristGroup.position.y = -0.30;
 
-      // 6. Detailed Mechanical Hand with 4 Articulated Fingers
+      const wristCollarGeo = new THREE.CylinderGeometry(0.095, 0.105, 0.03, 18);
+      const wristCollar = new THREE.Mesh(wristCollarGeo, mats.silverJoint);
+      wristGroup.add(wristCollar);
+
+      const wristSpring = createSpringJoint(0.08, 0.075, 2, mats);
+      wristSpring.position.y = -0.04;
+      wristGroup.add(wristSpring);
+
+      forearm.add(wristGroup);
+
+      // 6. Sculpted Articulated Robotic Hand
       const hand = new THREE.Group();
-      hand.position.y = -0.36;
+      hand.position.y = -0.075;
+      wristGroup.add(hand);
 
-      const dorsalGeo = createCapsuleGeo(0.09, 0.07, 16);
-      const dorsalMesh = new THREE.Mesh(dorsalGeo, mats.whiteGloss);
-      dorsalMesh.rotation.z = Math.PI / 2;
-      dorsalMesh.scale.set(0.65, 1.1, 0.7);
-      dorsalMesh.position.set(0, -0.04, 0.02);
-      hand.add(dorsalMesh);
+      // A. Main Palm Pod (Curved ergonomic chassis with dorsal shell)
+      const palmChassisGeo = createRoundedBox(0.125, 0.115, 0.065, 0.024, 2);
+      const palmChassis = new THREE.Mesh(palmChassisGeo, mats.whiteGloss);
+      palmChassis.position.set(0, -0.05, 0);
+      palmChassis.castShadow = true;
+      hand.add(palmChassis);
 
-      const palmGeo = new THREE.CylinderGeometry(0.08, 0.075, 0.06, 16);
-      const palm = new THREE.Mesh(palmGeo, mats.silverJoint);
-      palm.position.y = -0.05;
-      hand.add(palm);
+      // B. Inner Palm Grip Pad (Machined brushed silver insert)
+      const gripGeo = new THREE.BoxGeometry(0.095, 0.075, 0.012);
+      const gripMesh = new THREE.Mesh(gripGeo, mats.silverJoint);
+      gripMesh.position.set(0, -0.052, 0.028);
+      hand.add(gripMesh);
 
-      function makeMechanicalFinger(fx, fy, len, spreadAngle, curlAngle) {
-        const fingerRoot = new THREE.Group();
-        fingerRoot.position.set(fx, fy, 0);
-        fingerRoot.rotation.z = spreadAngle;
-        fingerRoot.rotation.x = curlAngle;
+      // C. Glowing Cyan Palm Sensor/Repulsor Node (Signature sci-fi detail)
+      const palmDotGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.008, 16);
+      palmDotGeo.rotateX(Math.PI / 2);
+      const palmDot = new THREE.Mesh(palmDotGeo, mats.turquoiseAccent);
+      palmDot.position.set(0, -0.052, 0.035);
+      hand.add(palmDot);
 
-        const k1 = new THREE.Mesh(new THREE.SphereGeometry(0.026, 10, 10), mats.silverJoint);
-        fingerRoot.add(k1);
+      const palmCoreGeo = new THREE.SphereGeometry(0.010, 10, 10);
+      const palmCore = new THREE.Mesh(palmCoreGeo, mats.turquoiseGlow);
+      palmCore.position.set(0, -0.052, 0.039);
+      hand.add(palmCore);
 
-        const p1Geo = createCapsuleGeo(0.022, len * 0.45, 12);
-        const p1 = new THREE.Mesh(p1Geo, mats.whitePlastic);
-        p1.position.y = -len * 0.25;
-        fingerRoot.add(p1);
+      // D. Realistic Articulated Robotic Fingers with Cascading Phalanxes & Joints
+      function createArticulatedFinger(fx, fy, fz, len, spreadZ, curlX, twistY, isThumb) {
+        const fingerBase = new THREE.Group();
+        fingerBase.position.set(fx, fy, fz);
+        fingerBase.rotation.set(curlX * 0.45, twistY || 0, spreadZ);
 
-        const k2 = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 10), mats.silverJoint);
-        k2.position.y = -len * 0.52;
-        fingerRoot.add(k2);
+        // 1. Base Metacarpal / Knuckle Ball Joint
+        const baseR = isThumb ? 0.023 : 0.020;
+        const k1Geo = new THREE.SphereGeometry(baseR, 12, 10);
+        const k1 = new THREE.Mesh(k1Geo, mats.silverJoint);
+        fingerBase.add(k1);
 
-        const p2Geo = createCapsuleGeo(0.020, len * 0.38, 12);
+        // Knuckle collar ring
+        const kRingGeo = new THREE.TorusGeometry(baseR * 0.95, 0.005, 8, 16);
+        kRingGeo.rotateX(Math.PI / 2);
+        const kRing = new THREE.Mesh(kRingGeo, mats.chrome);
+        fingerBase.add(kRing);
+
+        // 2. Proximal Phalanx (Base segment)
+        const seg1Len = len * 0.48;
+        const p1R = isThumb ? 0.020 : 0.017;
+        const p1Geo = createCapsuleGeo(p1R, seg1Len, 12);
+        const p1 = new THREE.Mesh(p1Geo, mats.whiteGloss);
+        p1.position.y = -seg1Len * 0.5;
+        p1.castShadow = true;
+        fingerBase.add(p1);
+
+        // 3. Interphalangeal Hinge Joint (Middle Joint)
+        const midJoint = new THREE.Group();
+        midJoint.position.y = -seg1Len;
+        midJoint.rotation.x = curlX * 0.55; // Secondary natural curvature
+
+        const midR = isThumb ? 0.018 : 0.015;
+        const k2Geo = new THREE.SphereGeometry(midR, 10, 10);
+        const k2 = new THREE.Mesh(k2Geo, mats.silverJoint);
+        midJoint.add(k2);
+
+        // 4. Distal Phalanx (Fingertip segment)
+        const seg2Len = len * 0.44;
+        const p2R = isThumb ? 0.018 : 0.015;
+        const p2Geo = createTaperedCapsuleGeo(p2R * 0.85, p2R, seg2Len, 12);
         const p2 = new THREE.Mesh(p2Geo, mats.whiteGloss);
-        p2.position.y = -len * 0.74;
-        fingerRoot.add(p2);
+        p2.position.y = -seg2Len * 0.5;
+        p2.castShadow = true;
+        midJoint.add(p2);
 
-        return fingerRoot;
+        // Fingertip cyan sensor pad
+        const padGeo = new THREE.SphereGeometry(p2R * 0.6, 8, 8);
+        const pad = new THREE.Mesh(padGeo, mats.turquoiseAccent);
+        pad.position.set(0, -seg2Len * 0.65, p2R * 0.45);
+        midJoint.add(pad);
+
+        fingerBase.add(midJoint);
+        return fingerBase;
       }
 
       if (!isRight) {
-        // Outer Left Hand (High greeting wave)
-        hand.add(makeMechanicalFinger(0.065, -0.07, 0.16, -0.30, 0.08));
-        hand.add(makeMechanicalFinger(0.022, -0.08, 0.18, -0.08, 0.04));
-        hand.add(makeMechanicalFinger(-0.022, -0.08, 0.19, 0.08, 0.04));
-        hand.add(makeMechanicalFinger(-0.065, -0.07, 0.15, 0.28, 0.10));
+        // --- Outer Left Hand (Friendly, relaxed waving gesture with palm facing forward) ---
+        // Wrist rotation: Palm angled towards camera with natural welcoming pitch
+        hand.rotation.set(-0.24, -0.42, 0.16);
+
+        // Opposable Thumb (Inside edge towards body)
+        hand.add(createArticulatedFinger(0.048, -0.025, 0.020, 0.150, 0.42, -0.18, 0.28, true));
+        // Index Finger
+        hand.add(createArticulatedFinger(0.020, -0.054, 0.005, 0.165, 0.12, -0.14, 0.08, false));
+        // Middle Finger (Tallest)
+        hand.add(createArticulatedFinger(-0.008, -0.058, 0.002, 0.180, -0.04, -0.10, 0.02, false));
+        // Pinky Finger (Outer edge)
+        hand.add(createArticulatedFinger(-0.038, -0.050, -0.002, 0.145, -0.24, -0.20, -0.08, false));
       } else {
-        // Inner Right Hand (Resting)
-        hand.add(makeMechanicalFinger(-0.065, -0.07, 0.15, 0.22, 0.24));
-        hand.add(makeMechanicalFinger(-0.022, -0.08, 0.18, 0.06, 0.26));
-        hand.add(makeMechanicalFinger(0.022, -0.08, 0.19, -0.06, 0.26));
-        hand.add(makeMechanicalFinger(0.065, -0.07, 0.16, -0.22, 0.22));
+        // --- Inner Right Hand (Naturally resting near the waist with gently curved fingers) ---
+        // Wrist rotation: Angled inward toward body/waist contour
+        hand.rotation.set(0.35, 0.38, -0.22);
+
+        // Opposable Thumb (Resting smoothly along waist front)
+        hand.add(createArticulatedFinger(-0.048, -0.025, 0.020, 0.150, -0.35, 0.28, -0.24, true));
+        // Index Finger (Gently curved around waist contour)
+        hand.add(createArticulatedFinger(-0.020, -0.054, 0.005, 0.165, -0.10, 0.50, -0.06, false));
+        // Middle Finger (Gracefully curled)
+        hand.add(createArticulatedFinger(0.008, -0.058, 0.002, 0.180, 0.03, 0.54, 0.02, false));
+        // Pinky Finger (Curled naturally)
+        hand.add(createArticulatedFinger(0.038, -0.050, -0.002, 0.145, 0.18, 0.62, 0.08, false));
       }
 
-      forearm.add(hand);
       elbow.add(forearm);
       upperArm.add(elbow);
       armGroup.add(upperArm);
@@ -1060,21 +1127,27 @@
     torsoGroup.add(shoulderR);
     torsoGroup.add(shoulderL);
 
-    // Initial greeting wave pose for outer left arm
-    shoulderL.rotation.z = -0.45;
-    shoulderL.rotation.x = -0.15;
-    upperArmL.rotation.y = -0.25;
-    elbowL.rotation.z = 2.30;
-    elbowL.rotation.y = -0.28;
-    forearmL.rotation.z = 0.20;
-    handL.rotation.z = 0.10;
+    // Initial friendly greeting wave pose for outer left arm
+    shoulderL.rotation.z = -0.38;
+    shoulderL.rotation.x = -0.14;
+    shoulderL.rotation.y = 0.12;
+    upperArmL.rotation.y = -0.22;
+    elbowL.rotation.z = 2.24;
+    elbowL.rotation.y = -0.32;
+    elbowL.rotation.x = 0.12;
+    forearmL.rotation.z = 0.16;
+    forearmL.rotation.y = -0.28;
 
-    // Natural relaxed pose for inner right arm
-    shoulderR.rotation.z = 0.20;
-    shoulderR.rotation.x = -0.10;
-    upperArmR.rotation.y = 0.15;
-    elbowR.rotation.z = -0.35;
-    forearmR.rotation.z = -0.15;
+    // Confident, relaxed resting pose for inner right arm alongside the waist
+    shoulderR.rotation.z = 0.36;
+    shoulderR.rotation.x = 0.08;
+    shoulderR.rotation.y = -0.10;
+    upperArmR.rotation.y = 0.16;
+    elbowR.rotation.z = -0.82;
+    elbowR.rotation.x = 0.16;
+    elbowR.rotation.y = 0.22;
+    forearmR.rotation.z = -0.18;
+    forearmR.rotation.y = 0.32;
 
     robotRoot.add(torsoGroup);
 
@@ -1291,75 +1364,70 @@
         neckStem.scale.y = 1.0 + (headBob / 0.28);
       }
 
-      // Subtle idle antenna sway & glowing pulse
+      // Subtle idle antenna sway on headphone ears
       if (antennaL && antennaR) {
-        antennaL.rotation.z = 0.16 + Math.sin(elapsedTime * 3.2) * 0.035;
-        antennaR.rotation.z = -0.16 - Math.sin(elapsedTime * 3.2 + 0.8) * 0.035;
-        antennaL.rotation.x = -0.05 + Math.cos(elapsedTime * 2.8) * 0.025;
-        antennaR.rotation.x = -0.05 + Math.cos(elapsedTime * 2.8 + 0.5) * 0.025;
-      }
-
-      if (robotMaterials && robotMaterials.antennaTip) {
-        robotMaterials.antennaTip.emissiveIntensity = 0.50 + Math.sin(elapsedTime * 4.2) * 0.25;
+        antennaL.rotation.z = -0.06 + Math.sin(elapsedTime * 3.0) * 0.015;
+        antennaR.rotation.z = 0.06 - Math.sin(elapsedTime * 3.0 + 0.8) * 0.015;
+        antennaL.rotation.x = -0.02 + Math.cos(elapsedTime * 2.6) * 0.012;
+        antennaR.rotation.x = -0.02 + Math.cos(elapsedTime * 2.6 + 0.5) * 0.012;
       }
     }
 
-    // 6. LED Eyes Following Cursor & Periodic Blinking
-    faceState.targetLookX = mouse.x * 22;
-    faceState.targetLookY = -mouse.y * 14;
-    faceState.lookX += (faceState.targetLookX - faceState.lookX) * 0.1;
-    faceState.lookY += (faceState.targetLookY - faceState.lookY) * 0.1;
+    // 6. LED Eyes Following Cursor & Periodic Blinking (Optimized & Non-Fluctuating)
+    faceState.targetLookX = mouse.x * 20;
+    faceState.targetLookY = -mouse.y * 12;
+    faceState.lookX += (faceState.targetLookX - faceState.lookX) * 0.08;
+    faceState.lookY += (faceState.targetLookY - faceState.lookY) * 0.08;
 
-    nextExpressionTime -= delta;
-    if (nextExpressionTime <= 0 && !isHappy && !mouse.isHovered) {
-      const expressions = ['happy', 'happy', 'neutral', 'winking', 'surprised'];
-      const nextExp = expressions[Math.floor(Math.random() * expressions.length)];
-      if (nextExp !== faceState.expression) {
-        faceState.expression = nextExp;
-        drawFace();
-      }
-      nextExpressionTime = 8.0 + Math.random() * 6.0;
-    }
-
-    const blinkCycle = elapsedTime % 4.2;
+    const blinkCycle = elapsedTime % 4.5;
+    let currentBlink = 0;
     if (blinkCycle < 0.14) {
-      faceState.blink = Math.sin((blinkCycle / 0.14) * Math.PI);
-      drawFace();
-    } else if (faceState.blink !== 0) {
-      faceState.blink = 0;
-      drawFace();
-    } else if (Math.abs(faceState.targetLookX - faceState.lookX) > 0.5) {
+      currentBlink = Math.sin((blinkCycle / 0.14) * Math.PI);
+    }
+    faceState.blink = currentBlink;
+
+    // Only re-draw face when visually needed (prevents texture thrashing and screen fluctuation)
+    const lookDiff = Math.hypot(faceState.lookX - lastFaceState.lookX, faceState.lookY - lastFaceState.lookY);
+    const blinkDiff = Math.abs(faceState.blink - lastFaceState.blink);
+    const exprChanged = faceState.expression !== lastFaceState.expression;
+
+    if (lookDiff > 1.2 || blinkDiff > 0.04 || exprChanged) {
+      lastFaceState.lookX = faceState.lookX;
+      lastFaceState.lookY = faceState.lookY;
+      lastFaceState.blink = faceState.blink;
+      lastFaceState.expression = faceState.expression;
       drawFace();
     }
 
     // 7. Expressive Greeting Wave (Outer Left Arm)
     if (isWaving && shoulderL && elbowL && forearmL && handL) {
       waveTimer += delta;
-      const waveFreq = 7.0;
+      const waveFreq = 6.2;
       const waveSin = Math.sin(waveTimer * waveFreq);
       const waveCos = Math.cos(waveTimer * waveFreq);
 
-      shoulderL.rotation.z = THREE.MathUtils.lerp(shoulderL.rotation.z, -0.48, 0.15);
-      shoulderL.rotation.x = THREE.MathUtils.lerp(shoulderL.rotation.x, -0.15, 0.15);
-      upperArmL.rotation.y = THREE.MathUtils.lerp(upperArmL.rotation.y, -0.28, 0.15);
+      shoulderL.rotation.z = THREE.MathUtils.lerp(shoulderL.rotation.z, -0.40, 0.12);
+      shoulderL.rotation.x = THREE.MathUtils.lerp(shoulderL.rotation.x, -0.14, 0.12);
+      upperArmL.rotation.y = THREE.MathUtils.lerp(upperArmL.rotation.y, -0.22, 0.12);
 
-      elbowL.rotation.z = 2.32 + waveSin * 0.26;
-      elbowL.rotation.y = -0.28 + waveCos * 0.16;
-      forearmL.rotation.z = 0.20 + waveSin * 0.20;
-      handL.rotation.z = waveSin * 0.35;
-      handL.rotation.x = waveCos * 0.14;
+      elbowL.rotation.z = 2.24 + waveSin * 0.18;
+      elbowL.rotation.y = -0.32 + waveCos * 0.10;
+      forearmL.rotation.z = 0.16 + waveSin * 0.12;
+      handL.rotation.z = 0.16 + waveSin * 0.22;
+      handL.rotation.x = -0.24 + waveCos * 0.08;
 
       if (waveTimer >= waveDuration) {
         isWaving = false;
       }
     } else if (shoulderL && elbowL && forearmL && handL) {
-      shoulderL.rotation.z = THREE.MathUtils.lerp(shoulderL.rotation.z, -0.42, 0.08);
-      shoulderL.rotation.x = THREE.MathUtils.lerp(shoulderL.rotation.x, -0.12, 0.08);
+      shoulderL.rotation.z = THREE.MathUtils.lerp(shoulderL.rotation.z, -0.38 + breath * 0.015, 0.08);
+      shoulderL.rotation.x = THREE.MathUtils.lerp(shoulderL.rotation.x, -0.14 + breath * 0.010, 0.08);
       upperArmL.rotation.y = THREE.MathUtils.lerp(upperArmL.rotation.y, -0.22, 0.08);
-      elbowL.rotation.z = THREE.MathUtils.lerp(elbowL.rotation.z, 2.25 + breath * 0.04, 0.08);
-      elbowL.rotation.y = THREE.MathUtils.lerp(elbowL.rotation.y, -0.25, 0.08);
-      forearmL.rotation.z = THREE.MathUtils.lerp(forearmL.rotation.z, 0.18, 0.08);
-      handL.rotation.z = THREE.MathUtils.lerp(handL.rotation.z, 0.08, 0.08);
+      elbowL.rotation.z = THREE.MathUtils.lerp(elbowL.rotation.z, 2.24 + breath * 0.03, 0.08);
+      elbowL.rotation.y = THREE.MathUtils.lerp(elbowL.rotation.y, -0.32, 0.08);
+      forearmL.rotation.z = THREE.MathUtils.lerp(forearmL.rotation.z, 0.16, 0.08);
+      handL.rotation.z = THREE.MathUtils.lerp(handL.rotation.z, 0.16, 0.08);
+      handL.rotation.x = THREE.MathUtils.lerp(handL.rotation.x, -0.24, 0.08);
 
       nextWaveTime -= delta;
       if (nextWaveTime <= 0) {
@@ -1368,12 +1436,12 @@
       }
     }
 
-    // 8. Right Arm Natural Sway with Breathing
+    // 8. Right Arm Confident Waist Rest with Natural Breathing
     if (shoulderR && elbowR && forearmR) {
-      shoulderR.rotation.z = THREE.MathUtils.lerp(shoulderR.rotation.z, 0.20 + breath * 0.015, 0.08);
-      shoulderR.rotation.x = THREE.MathUtils.lerp(shoulderR.rotation.x, -0.10 + breath * 0.012, 0.08);
-      elbowR.rotation.z = THREE.MathUtils.lerp(elbowR.rotation.z, -0.35 + breath * 0.02, 0.08);
-      forearmR.rotation.z = THREE.MathUtils.lerp(forearmR.rotation.z, -0.15, 0.08);
+      shoulderR.rotation.z = THREE.MathUtils.lerp(shoulderR.rotation.z, 0.36 + breath * 0.012, 0.08);
+      shoulderR.rotation.x = THREE.MathUtils.lerp(shoulderR.rotation.x, 0.08 + breath * 0.008, 0.08);
+      elbowR.rotation.z = THREE.MathUtils.lerp(elbowR.rotation.z, -0.82 + breath * 0.015, 0.08);
+      forearmR.rotation.z = THREE.MathUtils.lerp(forearmR.rotation.z, -0.18, 0.08);
     }
 
     renderer.render(scene, camera);
@@ -1411,16 +1479,16 @@
 
     // Camera (Framed with full body visible without clipping)
     camera = new THREE.PerspectiveCamera(46, width / height, 0.1, 50);
-    camera.position.set(0, 0.16, 5.40);
-    camera.lookAt(0, 0.12, 0);
+    camera.position.set(0, 0.08, 5.30);
+    camera.lookAt(0, 0.04, 0);
 
     // Build Character
     initFaceScreen();
     const materials = createMaterials();
     robotMaterials = materials;
     const robot = buildRobot(materials);
-    robot.scale.set(0.76, 0.76, 0.76);
-    robot.position.set(0, -0.06, 0);
+    robot.scale.set(0.66, 0.66, 0.66);
+    robot.position.set(0, -0.02, 0);
     scene.add(robot);
 
     setupLighting();
