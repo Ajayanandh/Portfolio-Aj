@@ -252,38 +252,31 @@
             </div>
           </div>
 
-          <!-- RIGHT COLUMN: Futuristic Tech HUD Animation Stage -->
+          <!-- RIGHT COLUMN: Interactive 3D Character Animation -->
           <div class="hero-right hero-animate-3">
-            <div class="tech-animation-card">
+            <div class="character-card" id="characterCard">
 
-              <!-- Layered Interactive Tech HUD Stage -->
-              <div class="tech-hud-stage">
-                <!-- Glowing Core Radial Pulse -->
-                <div class="hud-core-glow"></div>
+              <!-- Interactive 3D Character Stage -->
+              <div class="character-stage" id="characterStage" role="button" tabindex="0"
+                aria-label="Interactive 3D Character Animation - Click to play sequence">
 
-                <!-- Main Futuristic Tech Animation Graphic -->
-                <img src="assets/tech_animation.png" alt="Futuristic Tech Hologram &amp; Circuit Animation"
-                  class="tech-hud-img" id="techHudImg">
+                <!-- Character Animation Canvas -->
+                <canvas id="characterCanvas" width="640" height="360" class="character-canvas"></canvas>
 
-                <!-- Dynamic Energy Beam Ray -->
-                <div class="hud-beam-pulse"></div>
-
-                <!-- Circuit Spark Particles -->
-                <div class="circuit-spark spark-1"></div>
-                <div class="circuit-spark spark-2"></div>
-                <div class="circuit-spark spark-3"></div>
-
-                <!-- Hologram Scanline Bar -->
-                <div class="hud-scanner-bar"></div>
+                <!-- Interactive Click Trigger Badge -->
+                <div class="character-play-badge" id="characterPlayBadge">
+                  <span class="badge-icon">▶</span>
+                  <span class="badge-text">Click to Play</span>
+                </div>
               </div>
 
-              <!-- Tech Terminal Status Footer -->
-              <div class="tech-hud-footer">
-                <div class="hud-status-badge">
-                  <span class="hud-live-indicator"></span>
-                  <span class="hud-mono-text">SYSTEM // CS &amp; DATA ENGINE</span>
+              <!-- Character Status & Interaction Bar -->
+              <div class="character-status-bar">
+                <div class="character-status-info">
+                  <span class="status-indicator-dot" id="characterStatusDot"></span>
+                  <span class="status-indicator-text" id="characterStatusText">3D INTERACTIVE // READY</span>
                 </div>
-                <div class="hud-version-tag">ONLINE</div>
+                <div class="character-replay-hint" id="characterHintText">CLICK TO ANIMATE</div>
               </div>
 
             </div>
@@ -456,7 +449,11 @@
     <!-- ======================================================================
          SKILLS SECTION
          ====================================================================== -->
-    <section class="section" id="skills">
+    <section class="section skills-section" id="skills">
+      <!-- Background chess animation canvas -->
+      <canvas class="skills-bg-canvas" id="skillsBgCanvas" aria-hidden="true"></canvas>
+      <!-- Gradient overlay keeps cards readable -->
+      <div class="skills-bg-overlay" aria-hidden="true"></div>
       <div class="container">
 
         <div class="section-header reveal">
@@ -1070,6 +1067,7 @@
   <!-- JavaScript Scripts -->
   <script src="js/three.min.js"></script>
   <script src="js/robot3d.js?v=handgesture1"></script>
+  <script src="js/character-animation.js"></script>
   <script src="js/main.js"></script>
   <script src="js/contact.js"></script>
 </body>

@@ -740,26 +740,200 @@ html[data-theme="dark"] .header.scrolled {
   color: var(--text-secondary);
 }
 
-/* --- Right Column: Tech HUD Animation Card --- */
+/* --- Right Column: Interactive 3D Character & Tech Animation Card --- */
 .hero-right {
   display: flex;
   flex-direction: column;
 }
 
+.character-card,
 .tech-animation-card {
   background: var(--bg-card);
   border-radius: var(--radius-xl);
   padding: 1.25rem;
   border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08), var(--shadow-card);
   position: relative;
   overflow: hidden;
-  transition: transform var(--trans-normal), box-shadow var(--trans-normal);
+  transition: transform var(--trans-normal), box-shadow var(--trans-normal), border-color var(--trans-normal);
 }
 
+.character-card:hover,
 .tech-animation-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-card-hover);
+  box-shadow: 0 16px 36px rgba(14, 165, 233, 0.22), 0 0 20px rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+/* 3D Character Stage */
+.character-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  box-shadow: inset 0 0 30px rgba(14, 165, 233, 0.15), 0 8px 24px rgba(14, 165, 233, 0.16);
+  animation: characterFloat 4.8s ease-in-out infinite;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+
+.character-stage:focus-visible {
+  outline: 2px solid var(--accent-lime);
+  outline-offset: 3px;
+}
+
+.character-stage:hover {
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: inset 0 0 40px rgba(14, 165, 233, 0.28), 0 14px 34px rgba(14, 165, 233, 0.35);
+}
+
+.character-stage.is-playing {
+  animation: none; /* Keep steady while playing to ensure crisp focus */
+}
+
+@keyframes characterFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+.character-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: transparent;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.character-stage:hover .character-canvas {
+  transform: scale(1.02);
+  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.45));
+}
+
+/* Click to play / replay badge */
+.character-play-badge {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: rgba(11, 15, 23, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: #38BDF8;
+  padding: 0.42rem 0.95rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 14px rgba(14, 165, 233, 0.3);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 10;
+}
+
+.character-play-badge .badge-icon {
+  font-size: 0.72rem;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.character-stage:hover .character-play-badge {
+  background: rgba(14, 165, 233, 0.9);
+  color: #FFFFFF;
+  border-color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+.character-play-badge.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9) translateY(4px);
+}
+
+/* Character Status Footer Bar */
+.character-status-bar {
+  margin-top: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-card-subtle);
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+.character-status-info {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.character-status-bar .status-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--accent-lime);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.35);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.character-status-bar .status-indicator-dot.status-playing {
+  background-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35);
+  animation: pulsePlaying 1s infinite ease-in-out;
+}
+
+@keyframes pulsePlaying {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.75;
+  }
+}
+
+.character-status-bar .status-indicator-text {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.character-replay-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-lime);
+  background: rgba(14, 165, 233, 0.1);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.03em;
+  transition: all 0.2s ease;
+}
+
+.character-stage:hover ~ .character-status-bar .character-replay-hint {
+  background: rgba(14, 165, 233, 0.2);
+  color: #0284C7;
 }
 
 .tech-hud-stage {
@@ -1259,6 +1433,56 @@ html[data-theme="dark"] .header.scrolled {
 /* ==========================================================================
    SKILLS SECTION (CATEGORIZED MATRIX)
    ========================================================================== */
+
+/* Skills section needs a stacking context for the canvas bg */
+.skills-section {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Full-bleed background animation canvas */
+.skills-bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  filter: saturate(0.6) brightness(1.05);
+  border-radius: 0;
+  /* Scale to cover the entire section from center */
+  object-fit: cover;
+}
+
+html[data-theme="dark"] .skills-bg-canvas {
+  opacity: 0.75;
+  filter: saturate(0.8) brightness(0.75);
+}
+
+/* Thin edge fade — only at the very top and bottom to blend into adjacent sections.
+   Much reduced from before so the center of the canvas shows through clearly. */
+.skills-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      var(--bg-main) 0%,
+      transparent 10%,
+      transparent 90%,
+      var(--bg-main) 100%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* All skill content must sit above the canvas layers */
+.skills-section .container {
+  position: relative;
+  z-index: 2;
+}
+
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -2684,10 +2908,12 @@ html[data-theme="dark"] .contact-left .section-tag {
   color: #000000 !important;
 }
 
-/* Dark Mode: Tech animation card → black background */
+/* Dark Mode: Tech animation card / Character card → black background */
+html[data-theme="dark"] .character-card,
 html[data-theme="dark"] .tech-animation-card {
   background: #000000;
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(14, 165, 233, 0.15);
 }
 
 /* Dark Mode: Primary CTA Button (View My Work, Download Resume, etc.) */
